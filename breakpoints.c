@@ -135,7 +135,6 @@ static inline bool get_bit(uint32_t val, uint8_t bit_index) {
 
 void apply_breakpoints(int pid) {
   uint32_t dr7 = get_reg(pid, DR7);
-  dr7 |= (1 << 10);
 
   for (size_t i = 0; i < MAX_BREAKPOINTS; i++) {
 
