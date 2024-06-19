@@ -1,4 +1,5 @@
 #include "parser.h"
+#include <assert.h>
 
 int64_t eval(struct Node *node, struct user_regs_struct *regs) {
 
@@ -26,8 +27,11 @@ int64_t eval(struct Node *node, struct user_regs_struct *regs) {
   }
 
   if (node->type == NODE_DIV) {
-    return eval(node->value.as_bi_op.lhs, regs) /
-           eval(node->value.as_bi_op.rhs, regs);
+    int64_t rhs = eval(node->value.as_bi_op.rhs, regs);
+
+    assert(rhs != 0);
+
+    return eval(node->value.as_bi_op.lhs, regs) / rhs;
   }
 
   return -1;
