@@ -23,7 +23,6 @@
 int pid;
 struct user_regs_struct regs;
 
-static char *exec_file;
 static struct winsize w;
 
 const struct {
@@ -69,10 +68,10 @@ void draw_titled_separator(const char *title) {
   printf("\033[0m\n");
 }
 
-void do_child() {
+void run_tracee(char *argv[]) {
   personality(ADDR_NO_RANDOMIZE);
   ptrace(PTRACE_TRACEME, 0, 0, 0);
-  execl(exec_file, exec_file, NULL);
+  execve(argv[0], argv, NULL);
 }
 
 struct CommandInstance read_command() {
@@ -103,7 +102,7 @@ struct CommandInstance read_command() {
   return parse_cmd(line);
 }
 
-void do_parent() {
+void run_tracer() {
   uint8_t instructions_buffer[DISASSEMBLY_LINES * MAX_INSTRUCTION_LENGTH];
 
   int status;
@@ -186,11 +185,9 @@ int main(int argc, char *argv[]) {
     exit(1);
   }
 
-  exec_file = argv[1];
-
   pid = fork();
   if (pid == 0)
-    do_child();
+    run_tracee(&argv[1]);
   else
-    do_parent();
+    run_tracer();
 }
